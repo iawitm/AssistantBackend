@@ -29,10 +29,27 @@ const lessonSchema = mongoose.Schema({
       type: String,
       required: true
     },
-    room: {type: String},
+    room: {
+      type: String,
+      required: true
+    },
     professor: {type: String},
     type: {type: String}
-  }]
+  }],
+  meta:{
+    institute: {
+      type: String,
+      required: true
+    },
+    cource: {
+      type: String,
+      required: true
+    },
+    group: {
+      type: String,
+      required: true
+    }
+  }
 })
 
 module.exports = mongoose.model('Lesson', lessonSchema)

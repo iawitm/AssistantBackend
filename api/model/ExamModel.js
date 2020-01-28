@@ -21,6 +21,20 @@ const examSchema = mongoose.Schema({
   professor: {
     type: String,
     required: true
+  },
+  meta:{
+    institute: {
+      type: String,
+      required: true
+    },
+    cource: {
+      type: String,
+      required: true
+    },
+    group: {
+      type: String,
+      required: true
+    }
   }
 })
 
