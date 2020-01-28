@@ -36,7 +36,7 @@ const lessonSchema = mongoose.Schema({
     professor: {type: String},
     type: {type: String}
   }],
-  meta:{
+  meta: {
     institute: {
       type: String,
       required: true

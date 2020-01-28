@@ -22,7 +22,7 @@ const examSchema = mongoose.Schema({
     type: String,
     required: true
   },
-  meta:{
+  meta: {
     institute: {
       type: String,
       required: true
