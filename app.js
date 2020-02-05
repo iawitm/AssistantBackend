@@ -1,7 +1,9 @@
 const express = require('express') //import library
 const mongoose = require('mongoose')
+require('express-async-errors')
 const app = express() //to this variable connects everything, something like main function
 const scheduleRoute = require('./api/routes/scheduleRoute')
+const errorMiddleware = require('./api/middleware/Error').errorMiddleware
 
 app.use('/schedule', scheduleRoute)
 
