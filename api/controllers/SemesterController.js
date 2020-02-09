@@ -12,7 +12,7 @@ exports.setSemester = async (req, res, next) => {
   const filter = {}
   const update = { startDate: startCalendar, endDate: endCalendar }
 
-  let doc = await Semester.findOneAndUpdate(filter, update, { new: true, upsert: true } )
+  let doc = await Semester.findOneAndUpdate(filter, update, { new: true, upsert: true })
 
-  res.status(200).json( {created: doc} )
+  res.status(200).json({created: doc})
 }
