@@ -9,12 +9,10 @@ exports.setSemester = async (req, res, next) => {
 
   if (startCalendar >= endCalendar) throw new HttpError('INCORRECT_DATE')
 
-  let semester = new Semester ({
-    startDate: startCalendar,
-    endDate: endCalendar
-  })
+  const filter = {}
+  const update = { startDate: startCalendar, endDate: endCalendar }
 
-  //await semester.save()
+  let doc = await Semester.findOneAndUpdate(filter, update, { new: true, upsert: true } )
 
-  res.status(200).json( {created: semester} )
+  res.status(200).json( {created: doc} )
 }

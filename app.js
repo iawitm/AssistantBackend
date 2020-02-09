@@ -16,6 +16,7 @@ mongoose.connect(
   process.env.MONGO_URL, { useNewUrlParser: true, useUnifiedTopology: true }
 )
 mongoose.Promise = global.Promise
+mongoose.set('useFindAndModify', false);
 
 app.listen(8080, () => {
   console.log('Server started')
