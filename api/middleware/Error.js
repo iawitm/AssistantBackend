@@ -1,10 +1,12 @@
-const ErrorTypes = {}
+const ErrorTypes = {
+  INCORRECT_DATE: 400
+}
 
 class HttpError extends Error {
   constructor(type) {
-    super.type.toString()
+    super(type.toString())
     this.errorName = type.toString()
-    this.statusCode = errorTypes[type]
+    this.statusCode = ErrorTypes[type]
   }
 }
 
@@ -18,7 +20,9 @@ exports.errorMiddleware = async function errorMiddleware(err, req, res, next) {
   else {
     console.error(err)
   }
-  res.status(code).json({ error: text }.end)
+  res.status(code)
+    .json({ error: text })
+    .end()
 }
 
 exports.HttpError = HttpError
