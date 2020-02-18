@@ -28,7 +28,7 @@ exports.getExams = async (req, res, next) => {
 
     let exams = await Exam.find({ 
         'meta.group': req.query.group
-    }).select('-meta')
+    }).select('-meta -_id')
 
     res.status(200).json(exams)
 }
