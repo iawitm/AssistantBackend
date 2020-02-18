@@ -15,11 +15,14 @@ app.use('/semester', semesterRoute)
 app.use(errorMiddleware)
 
 mongoose.connect(
-  process.env.DB_URL, { useNewUrlParser: true, useUnifiedTopology: true }
+  process.env.DB_URL, { 
+    useNewUrlParser: true, 
+    useUnifiedTopology: true,
+    useFindAndModify: false
+  }
 )
 mongoose.Promise = global.Promise
-mongoose.set('useFindAndModify', false);
 
-app.listen(8080, () => {
+app.listen(process.env.PORT, () => {
   console.log('Server started 🚀')
 })

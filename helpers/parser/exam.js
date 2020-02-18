@@ -1,20 +1,24 @@
 const core = require('./parserCore')
 
-exports.getExams = (fileName) => {
+exports.getExams = (fileName, institute, cource) => {
     let columns = core.xlsxToColumns(fileName)
     formatMonthColumn(columns)
-    return columnsToExams(columns)
+    return columnsToExams(columns, institute, cource)
 }
 
-const columnsToExams = (columns) => {
+const columnsToExams = (columns, institute, cource) => {
     let exams = []
 
     for (let i = 0; i < columns.length; i++) {
         let column = columns[i]
         let beginIndex = column.indexOf('время')
         if (beginIndex > -1 && (i - 1) > -1) {
-            let group = core.convertGroupName(columns[i - 1][beginIndex])
-            exams.push.apply(exams, columnToExams(columns, i - 1, beginIndex, group))
+            let meta = {
+                group: core.convertGroupName(columns[i - 1][beginIndex]),
+                institute: institute,
+                cource: cource
+            }
+            exams.push.apply(exams, columnToExams(columns, i - 1, beginIndex, meta))
         }
     }
     return exams
@@ -34,7 +38,7 @@ const formatMonthColumn = (columns) => {
     }
 }
 
-const columnToExams = (columns, colIndex, beginIndex, group) => {
+const columnToExams = (columns, colIndex, beginIndex, meta) => {
     let exams = []
 
     for (let i = beginIndex + 1; i < columns[colIndex].length; i++) {
@@ -47,7 +51,7 @@ const columnToExams = (columns, colIndex, beginIndex, group) => {
                 name: columns[colIndex][i + 1],
                 professor: columns[colIndex][i + 2],
                 room: columns[colIndex + 2][i],
-                group: group
+                meta: meta
             }
             exams.push(exam)
         }
