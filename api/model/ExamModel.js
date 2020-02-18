@@ -1,7 +1,6 @@
 const mongoose = require('mongoose')
 
 const examSchema = mongoose.Schema({
-  _id: mongoose.Schema.Types.ObjectId,
   name: {
     type: String,
     required: true
@@ -12,7 +11,7 @@ const examSchema = mongoose.Schema({
   },
   date: {
     type: Date,
-    required: true
+    required: false
   },
   room: {
     type: String,

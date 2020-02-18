@@ -65,7 +65,10 @@ const getDate = (columns, recordIndex, timeString) => {
     let day = getDay(columns[1][recordIndex].replace(/[а-я]/g, ''))
     let time = timeString.split('-')
     let date = new Date(`${year}-${month}-${day}`)
-    date.setHours(time[0], time[1])
+    if (time.length > 1) {
+        date.setHours(time[0], time[1])
+        date.setHours(date.getHours() + 3)
+    }
     return date
 }
 
