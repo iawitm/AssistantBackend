@@ -1,5 +1,7 @@
 const ErrorTypes = {
-  INCORRECT_DATE: 400
+  INCORRECT_DATE: 400,
+  NO_XLSX_PROVIDED: 400,
+  NO_META_PROVIDED: 400
 }
 
 class HttpError extends Error {

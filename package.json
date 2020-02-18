@@ -1,0 +1,31 @@
+{
+  "name": "assistantbackend",
+  "version": "1.0.0",
+  "description": "backend for MIREA schedule app",
+  "main": "app.js",
+  "dependencies": {
+    "dotenv": "^8.2.0",
+    "express": "^4.17.1",
+    "express-async-errors": "^3.1.1",
+    "express-form-data": "^2.0.11",
+    "mongoose": "^5.9.1",
+    "xlsx": "^0.15.5"
+  },
+  "devDependencies": {},
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://gitlab.com/mirea-assistant/backend.git"
+  },
+  "keywords": [
+    "MIREA"
+  ],
+  "author": "Ruslan Vinter",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://gitlab.com/mirea-assistant/backend/issues"
+  },
+  "homepage": "https://gitlab.com/mirea-assistant/backend#readme"
+}
