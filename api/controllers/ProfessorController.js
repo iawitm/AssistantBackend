@@ -19,14 +19,16 @@ exports.getByProfessor = async (req, res, next) => {
         _id: {
           day: '$day',
           number:'$number',
-          info:'$info'
+          info:'$info',
+          interval: '$interval'
         },
         id: {$first: '$_id'},
       }},
       {$group: {
         _id: '$id',
-        day: {$first: '$_id.day'},
-        number: {$first: '$_id.number'},
+        day: { $first: '$_id.day' },
+        number: { $first: '$_id.number' },
+        interval: { $first: '$_id.interval' },
         info: { $push: '$_id.info' },
       }}
     ])

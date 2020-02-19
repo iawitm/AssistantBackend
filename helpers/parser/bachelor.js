@@ -38,7 +38,11 @@ function columnToLessons(columns, colIndex, beginIndex, meta) {
             day: Math.trunc(number / 6) + 1,
             number: number % 6,
             info: [],
-            meta: meta
+            meta: meta,
+            interval: {
+                startTime: columns[2][i].replace(/-/, ':'),
+                endTime: columns[3][i].replace(/-/, ':')
+            }
         }
 
         for (j = 0; j < 2; j++) {
