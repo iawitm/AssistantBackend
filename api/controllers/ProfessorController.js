@@ -7,7 +7,8 @@ exports.getByProfessor = async (req, res, next) => {
 
 	if (!req.query.query) throw new HttpError('NO_QUERY')
 
-	let semester = await Semester.find()
+	let semester = await Semester.findOne()
+		.select('-_id')
 
 	let result = await Lesson.aggregate([
 		{ $unwind: '$info' },

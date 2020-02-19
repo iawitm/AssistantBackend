@@ -9,7 +9,7 @@ require('dotenv').config()
 const app = express() //to this variable connects everything, something like main function
 
 const scheduleRoute = require('./api/routes/ScheduleRoute')
-const semesterRoute = require('./api/routes/semesterRoute')
+const semesterRoute = require('./api/routes/SemesterRoute')
 const professorRoute = require('./api/routes/ProfessorRoute')
 const examRoute = require('./api/routes/ExamRoute')
 const errorMiddleware = require('./api/middleware/Error').errorMiddleware

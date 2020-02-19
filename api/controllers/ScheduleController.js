@@ -31,7 +31,7 @@ exports.uploadSchedule = async (req, res, next) => {
 }
 
 exports.getSchedule = async (req, res, next) => {
-	let semester = await Semester.find()
+	let semester = await Semester.findOne()
 		.select('-_id')
 
 	let schedule = await Lesson.find({
