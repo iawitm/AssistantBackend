@@ -7,8 +7,10 @@ require('express-async-errors')
 require('dotenv').config()
 
 const app = express() //to this variable connects everything, something like main function
+
 const scheduleRoute = require('./api/routes/ScheduleRoute')
 const semesterRoute = require('./api/routes/semesterRoute')
+const professorRoute = require('./api/routes/ProfessorRoute')
 const examRoute = require('./api/routes/ExamRoute')
 const errorMiddleware = require('./api/middleware/Error').errorMiddleware
 
@@ -22,6 +24,7 @@ app.use(formData.parse(formDataOptions));
 app.use('/schedule', scheduleRoute)
 app.use('/semester', semesterRoute)
 app.use('/exams', examRoute)
+app.use('/professor', professorRoute)
 app.use(errorMiddleware)
 
 mongoose.connect(
