@@ -1,29 +1,36 @@
 const core = require('./parserCore')
 const lessonCore = require('./lessonCore')
 
-exports.getSchedule = (fileName) => {
+exports.getSchedule = (fileName, institute, cource) => {
     let columns = core.xlsxToColumns(fileName)
-    return columnsToSchedule(columns)
+    return columnsToSchedule(columns, institute, cource)
 }
 
-function columnsToSchedule(columns) {
+function columnsToSchedule(columns, institute, cource) {
     let schedule = []
 
     for (let i = 0; i < columns.length; i++) {
         let column = columns[i]
         let beginIndex = column.indexOf('Предмет')
         if (beginIndex > -1 && column[beginIndex - 1] != '') {
+
+            let meta = {
+                group: core.convertGroupName(column[beginIndex - 1]),
+                cource: cource,
+                institute: institute
+            }
+
             schedule.push.apply(schedule, columnToLessons(
-                columns, i, beginIndex, core.convertGroupName(column[beginIndex - 1]
-            )))
+                columns, i, beginIndex, meta
+            ))
         }
     }
     return schedule
 }
 
-function columnToLessons(columns, colIndex, beginIndex, group) {
+function columnToLessons(columns, colIndex, beginIndex, meta) {
     let lessons = []
-    for (i = beginIndex + 1; i <= 73 + beginIndex; i += 2) {
+    for (i = beginIndex + 1; i <= 72 + beginIndex; i += 2) {
 
         let number = (i - beginIndex - 1) / 2
 
@@ -31,8 +38,10 @@ function columnToLessons(columns, colIndex, beginIndex, group) {
             day: Math.trunc(number / 6) + 1,
             number: number % 6,
             info: [],
-            meta: {
-                group: group
+            meta: meta,
+            interval: {
+                startTime: columns[2][i].replace(/-/, ':'),
+                endTime: columns[3][i].replace(/-/, ':')
             }
         }
 
