@@ -15,8 +15,8 @@ const examRoute = require('./api/routes/ExamRoute')
 const errorMiddleware = require('./api/middleware/Error').errorMiddleware
 
 const formDataOptions = {
-  uploadDir: os.tmpdir(),
-  autoClean: true
+	uploadDir: os.tmpdir(),
+	autoClean: true
 }
 
 app.use(bodyParser.json())
@@ -28,10 +28,10 @@ app.use('/professor', professorRoute)
 app.use(errorMiddleware)
 
 mongoose.connect(
-  process.env.DB_URL, { useNewUrlParser: true, useUnifiedTopology: true, useFindAndModify: false }
+	process.env.DB_URL, { useNewUrlParser: true, useUnifiedTopology: true, useFindAndModify: false }
 )
 mongoose.Promise = global.Promise
 
 app.listen(process.env.PORT, () => {
-  console.log('Server started 🚀')
+	console.log('Server started 🚀')
 })
