@@ -3,7 +3,8 @@ const ErrorTypes = {
 	NO_XLSX_PROVIDED: 400,
 	NO_META_PROVIDED: 400,
 	NO_QUERY: 400,
-	WRONG_INSTITUTE: 400
+	WRONG_INSTITUTE: 400,
+	NO_SUCH_SCHEDULE: 400
 }
 
 class HttpError extends Error {

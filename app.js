@@ -12,6 +12,7 @@ const scheduleRoute = require('./api/routes/ScheduleRoute')
 const semesterRoute = require('./api/routes/SemesterRoute')
 const professorRoute = require('./api/routes/ProfessorRoute')
 const examRoute = require('./api/routes/ExamRoute')
+const testRoute = require('./api/routes/TestRoutes')
 const errorMiddleware = require('./api/middleware/Error').errorMiddleware
 
 const formDataOptions = {
@@ -24,6 +25,7 @@ app.use(formData.parse(formDataOptions));
 app.use('/schedule', scheduleRoute)
 app.use('/semester', semesterRoute)
 app.use('/exams', examRoute)
+app.use('/tests', testRoute)
 app.use('/professor', professorRoute)
 app.use(errorMiddleware)
 

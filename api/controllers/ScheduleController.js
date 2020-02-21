@@ -31,12 +31,15 @@ exports.uploadSchedule = async (req, res, next) => {
 }
 
 exports.getSchedule = async (req, res, next) => {
-	let semester = await Semester.findOne()
-		.select('-_id')
 
 	let schedule = await Lesson.find({
 		'meta.group': req.query.group
 	}).select('-meta -_id')
+
+	if (!schedule.length) throw new HttpError('NO_SUCH_SCHEDULE')
+
+	let semester = await Semester.findOne()
+		.select('-_id')
 
 	res.status(200).json({
 		semester: semester,
