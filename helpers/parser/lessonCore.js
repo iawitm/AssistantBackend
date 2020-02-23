@@ -1,11 +1,13 @@
 exports.getLessonInfo = (rawLesson, parity) => {
-    if (rawLesson.name.match(/(кр [0-9,\s]+н\.)/g))
+    if (rawLesson.name.match(/(кр.? [0-9,\s]+н\.)/g))
         return getExceptedLessonsInfo(rawLesson, parity)
-    let weeksMatches = rawLesson.name.match(/([0-9,\s]+н\.)/g)
+    let weeksMatches = rawLesson.name.match(/(?![0-9] п\/г)[0-9,\s]+н?\.? /g)
 
     if (weeksMatches) {
         let info = []
-        let names = rawLesson.name.split(/[0-9,\s]+н\. /g).filter(Boolean)
+        let names = rawLesson.name.split(/(?![0-9] п\/г)[0-9,\s]+н?\.? /g).filter(Boolean)
+        removeEmptyFromArray(names)
+        
         let professors = rawLesson.professor.match(/[а-я]+ ([А-Я].)+/ig)
 
         for (let i = 0; i < weeksMatches.length; i++) {
@@ -15,8 +17,8 @@ exports.getLessonInfo = (rawLesson, parity) => {
                 professor: indexOrFirst(professors, i),
                 room: indexOrFirst(rawLesson.room.split(' '), i),
                 weeks: weeksMatches[i]
-                    .replace(/ н\./, '')
-                    .replace(/ /, '')
+                    .replace(/ н\./g, '')
+                    .replace(/ /g, '')
             })
         }
         info.push(getEmptyLessonInfo(parity))
@@ -28,25 +30,25 @@ exports.getLessonInfo = (rawLesson, parity) => {
 
 const getExceptedLessonsInfo = (rawLesson, parity) => {
     let infos = []
-    let matches = rawLesson.name.match(/(кр )?[0-9,\s]+н\./g)
-    let names = rawLesson.name.replace(/кр /, '').split(/[0-9,\s]+н\./g).filter(Boolean)
+    let matches = rawLesson.name.match(/(кр.? )?[0-9,\s]+н\./g)
+    let names = rawLesson.name.replace(/кр.? /, '').split(/[0-9,\s]+н\./g).filter(Boolean)
     let professors = rawLesson.professor.match(/[а-я]+ ([А-Я].)+/ig)
     
     for (let i = 0; i < matches.length; i++) {
         infos.push({
-            name: names[i],
+            name: removeFirstIfSpace(names[i]),
             type: indexOrFirst(rawLesson.type.split(' '), i),
             professor: indexOrFirst(professors, i),
             room: indexOrFirst(rawLesson.room.split(' '), i),
-            weeks: (matches[i].match(/кр [0-9,\s]+н\./g)) ?
+            weeks: (matches[i].match(/кр.? [0-9,\s]+н\./g)) ?
                 ((parity == 0) ? 'odd' : 'even') : matches[i].replace(/ н\./, '')
         })
     }
 
     if (infos.length == 1) {
         let empty = getEmptyLessonInfo(parity)
-        empty.weeks = rawLesson.name.match(/кр [0-9,\s]+н\./g)[0]
-            .replace(/кр /, '')
+        empty.weeks = rawLesson.name.match(/кр.? [0-9,\s]+н\./g)[0]
+            .replace(/кр.? /, '')
             .replace(/ н\./, '')
         infos.push(empty)
     }
@@ -75,6 +77,16 @@ const clear = (name) => {
 const indexOrFirst = (arr, index) => {
     if (!arr) return ''
     return (arr[index]) ? arr[index] : arr[0]
+}
+
+const removeFirstIfSpace = (text) => {
+    return (text[0] == ' ') ? text.substr(1) : text
+}
+
+const removeEmptyFromArray = (array) => {
+    for (let i = 0; i < array.length; i++) {
+        if (!array[i].replace(/\s/g, '').length) array.splice(i, 1)
+    }
 }
 
 const getEmptyLessonInfo = (parity) => {
