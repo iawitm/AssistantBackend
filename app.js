@@ -8,11 +8,7 @@ require('dotenv').config()
 
 const app = express() //to this variable connects everything, something like main function
 
-const scheduleRoute = require('./api/routes/ScheduleRoute')
-const semesterRoute = require('./api/routes/SemesterRoute')
-const professorRoute = require('./api/routes/ProfessorRoute')
-const examRoute = require('./api/routes/ExamRoute')
-const testRoute = require('./api/routes/TestRoutes')
+const routes = require('./api/routes/index')
 const errorMiddleware = require('./api/middleware/Error').errorMiddleware
 
 const formDataOptions = {
@@ -22,11 +18,7 @@ const formDataOptions = {
 
 app.use(bodyParser.json())
 app.use(formData.parse(formDataOptions));
-app.use('/schedule', scheduleRoute)
-app.use('/semester', semesterRoute)
-app.use('/exams', examRoute)
-app.use('/tests', testRoute)
-app.use('/professor', professorRoute)
+app.use('/', routes)
 app.use(errorMiddleware)
 
 mongoose.connect(
