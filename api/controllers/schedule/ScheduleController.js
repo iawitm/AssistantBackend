@@ -1,9 +1,9 @@
-const HttpError = require('../middleware/Error').HttpError
-const bachelorParser = require('../../helpers/parser/bachelor')
-const InstituteNumbers = require('../../helpers/institute').InstituteNumbers
+const HttpError = require('../../middleware/Error').HttpError
+const bachelorParser = require('../../../helpers/parser/bachelor')
+const InstituteNumbers = require('../../../helpers/institute').InstituteNumbers
 
-const Lesson = require('../model/LessonModel')
-const Semester = require('../model/SemesterModel')
+const Lesson = require('../../model/LessonModel')
+const Semester = require('../../model/SemesterModel')
 
 exports.uploadSchedule = async (req, res, next) => {
 

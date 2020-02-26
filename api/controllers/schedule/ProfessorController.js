@@ -1,7 +1,7 @@
-const HttpError = require('../middleware/Error').HttpError
+const HttpError = require('../../middleware/Error').HttpError
 
-const Semester = require('../model/SemesterModel')
-const Lesson = require('../model/LessonModel')
+const Semester = require('../../model/SemesterModel')
+const Lesson = require('../../model/LessonModel')
 
 exports.getByProfessor = async (req, res, next) => {
 

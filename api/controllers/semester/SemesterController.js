@@ -1,5 +1,5 @@
-const Semester = require('../model/SemesterModel')
-const HttpError = require('../middleware/Error').HttpError
+const Semester = require('../../model/SemesterModel')
+const HttpError = require('../../middleware/Error').HttpError
 
 exports.setSemester = async (req, res, next) => {
     const { startDate, endDate } = req.body
