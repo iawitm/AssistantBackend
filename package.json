@@ -4,10 +4,12 @@
   "description": "backend for MIREA schedule app",
   "main": "app.js",
   "dependencies": {
+    "bcrypt": "^4.0.0",
     "dotenv": "^8.2.0",
     "express": "^4.17.1",
     "express-async-errors": "^3.1.1",
     "express-form-data": "^2.0.11",
+    "jsonwebtoken": "^8.5.1",
     "mongoose": "^5.9.1",
     "xlsx": "^0.15.5"
   },
