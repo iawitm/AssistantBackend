@@ -1,5 +1,5 @@
 exports.getLessonInfo = (rawLesson, parity) => {
-    if (rawLesson.name.match(/(кр.? [0-9,\s]+н\.)/g))
+    if (rawLesson.name.match(/(?![0-9] п\/г)кр.? [0-9,\s]+н?\.? /g))
         return getExceptedLessonsInfo(rawLesson, parity)
     let weeksMatches = rawLesson.name.match(/(?![0-9] п\/г)[0-9,\s]+н?\.? /g)
 
@@ -17,7 +17,7 @@ exports.getLessonInfo = (rawLesson, parity) => {
                 professor: indexOrFirst(professors, i),
                 room: indexOrFirst(rawLesson.room.split(' '), i),
                 weeks: weeksMatches[i]
-                    .replace(/ н\./g, '')
+                    .replace(/\s?н\.?/g, '')
                     .replace(/ /g, '')
             })
         }
@@ -30,8 +30,8 @@ exports.getLessonInfo = (rawLesson, parity) => {
 
 const getExceptedLessonsInfo = (rawLesson, parity) => {
     let infos = []
-    let matches = rawLesson.name.match(/(кр.? )?[0-9,\s]+н\./g)
-    let names = rawLesson.name.replace(/кр.? /, '').split(/[0-9,\s]+н\./g).filter(Boolean)
+    let matches = rawLesson.name.match(/(?![0-9] п\/г)кр.? [0-9,\s]+н?\.? /g)
+    let names = rawLesson.name.replace(/кр.? /, '').split(/(?![0-9] п\/г)[0-9,\s]+н?\.? /g).filter(Boolean)
     let professors = rawLesson.professor.match(/[а-я]+ ([А-Я].)+/ig)
     
     for (let i = 0; i < matches.length; i++) {
@@ -40,16 +40,17 @@ const getExceptedLessonsInfo = (rawLesson, parity) => {
             type: indexOrFirst(rawLesson.type.split(' '), i),
             professor: indexOrFirst(professors, i),
             room: indexOrFirst(rawLesson.room.split(' '), i),
-            weeks: (matches[i].match(/кр.? [0-9,\s]+н\./g)) ?
+            weeks: (matches[i].match(/(?![0-9] п\/г)кр.? [0-9,\s]+н?\.? /g)) ?
                 ((parity == 0) ? 'odd' : 'even') : matches[i].replace(/ н\./, '')
         })
     }
 
     if (infos.length == 1) {
         let empty = getEmptyLessonInfo(parity)
-        empty.weeks = rawLesson.name.match(/кр.? [0-9,\s]+н\./g)[0]
+        empty.weeks = rawLesson.name.match(/(?![0-9] п\/г)кр.? [0-9,\s]+н?\.? /g)[0]
             .replace(/кр.? /, '')
-            .replace(/ н\./, '')
+            .replace(/ н\.?/, '')
+            .replace(/ /g, '')
         infos.push(empty)
     }
     
@@ -69,6 +70,7 @@ const clear = (name) => {
     return name
         .replace('……………', '')
         .replace('…………..', '')
+        .replace('День самостоятельных занятий', '')
         .replace('День', '')
         .replace('самостоятельных', '')
         .replace('занятий', '')
