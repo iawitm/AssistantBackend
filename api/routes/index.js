@@ -9,6 +9,8 @@ const professorRoute = require('./schedule/ProfessorRoute')
 const examRoute = require('./exams/ExamRoute')
 const testRoute = require('./exams/TestRoutes')
 
+const userRoute = require('./user/UserRoute')
+
 router.use('/semester', semesterRoute)
 
 router.use('/schedule', scheduleRoute)
@@ -16,5 +18,7 @@ router.use('/professor', professorRoute)
 
 router.use('/exams', examRoute)
 router.use('/tests', testRoute)
+
+router.use('/user', userRoute)
 
 module.exports = router
