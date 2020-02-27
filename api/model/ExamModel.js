@@ -37,4 +37,5 @@ const examSchema = mongoose.Schema({
   }
 })
 
-module.exports = mongoose.model('Exam', examSchema)
+exports.Exam = mongoose.model('Exam', examSchema)
+exports.Test = mongoose.model('Test', examSchema)

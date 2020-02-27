@@ -1,4 +1,4 @@
-const Exam = require('../../model/ExamModel')
+const { Exam } = require('../../model/ExamModel')
 const examParser = require('../../../helpers/parser/exam')
 const HttpError = require('../../middleware/Error').HttpError
 
