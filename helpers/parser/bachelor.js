@@ -1,5 +1,5 @@
-const core = require('./parserCore')
-const lessonCore = require('./lessonCore')
+const core = require('./core/parserCore')
+const lessonCore = require('./core/lessonCore')
 
 exports.getSchedule = (fileName, institute, cource) => {
     let columns = core.xlsxToColumns(fileName)

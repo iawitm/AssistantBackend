@@ -4,7 +4,7 @@
  * and group name parsing
  */
 const XLSX = require('xlsx')
-const translit = require('../translit')
+const translit = require('../../translit')
 
 exports.xlsxToColumns = (fileName) => {
     const workbook = XLSX.readFile(fileName)

@@ -1,4 +1,4 @@
-const core = require('./parserCore')
+const core = require('./core/parserCore')
  
 exports.getTests = (fileName, institute, cource, startDate) => {
     let columns = core.xlsxToColumns(fileName)
