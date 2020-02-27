@@ -12,7 +12,7 @@ exports.uploadSchedule = async (req, res, next) => {
 
 	let meta = JSON.parse(req.body.meta)
 
-	if (InstituteNumbers[meta.institute] === false) throw new HttpError('WRONG_INSTITUTE')
+	if (InstituteNumbers[meta.institute] === undefined) throw new HttpError('WRONG_INSTITUTE')
 
 	// TODO: add check for type of schedule
 	let schedule = bachelorParser.getSchedule(

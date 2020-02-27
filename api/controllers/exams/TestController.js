@@ -1,6 +1,8 @@
-const { Test } = require('../../model/ExamModel')
 const testParser = require('../../../helpers/parser/test')
 const HttpError = require('../../middleware/Error').HttpError
+
+const { Test } = require('../../model/ExamModel')
+const InstituteNumbers = require('../../../helpers/institute').InstituteNumbers
 
 exports.uploadTests = async (req, res, next) => {
     
@@ -9,17 +11,18 @@ exports.uploadTests = async (req, res, next) => {
 
     let meta = JSON.parse(req.body.meta)
 
+    if (InstituteNumbers[meta.institute] === undefined) throw new HttpError('WRONG_INSTITUTE')
     if (!new Date(meta.date)) throw new HttpError('INCORRECT_DATE')
 
     let tests = testParser.getTests(
         req.files.tests.path, 
-        meta.institute, 
+        InstituteNumbers[meta.institute], 
         meta.cource,
         new Date(meta.date)
     )
 
     await Test.collection.deleteMany({ 
-        'meta.institute': meta.institute, 
+        'meta.institute': InstituteNumbers[meta.institute], 
         'meta.cource': meta.cource 
     })
     await Test.collection.insertMany(tests)

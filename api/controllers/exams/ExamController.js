@@ -1,6 +1,8 @@
-const { Exam } = require('../../model/ExamModel')
 const examParser = require('../../../helpers/parser/exam')
 const HttpError = require('../../middleware/Error').HttpError
+
+const { Exam } = require('../../model/ExamModel')
+const InstituteNumbers = require('../../../helpers/institute').InstituteNumbers
 
 exports.uploadExams = async (req, res, next) => {
 
@@ -9,14 +11,16 @@ exports.uploadExams = async (req, res, next) => {
 
     let meta = JSON.parse(req.body.meta)
 
+    if (InstituteNumbers[meta.institute] === undefined) throw new HttpError('WRONG_INSTITUTE')
+
     let exams = examParser.getExams(
         req.files.exams.path, 
-        meta.institute, 
+        InstituteNumbers[meta.institute], 
         meta.cource
     )
 
     await Exam.collection.deleteMany({ 
-        'meta.institute': meta.institute, 
+        'meta.institute': InstituteNumbers[meta.institute], 
         'meta.cource': meta.cource 
     })
     await Exam.collection.insertMany(exams)
