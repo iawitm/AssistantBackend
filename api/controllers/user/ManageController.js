@@ -1,7 +1,9 @@
 const HttpError = require('../../middleware/Error').HttpError
-const { User } = require('../../model/UserModel')
+const { User, UserRole } = require('../../model/UserModel')
 
 exports.getUsers = async (req, res, next) => {
+    if (req.user.role != UserRole.ADMIN) throw new HttpError('NOT_ADMIN')
+
     let users = await User
         .find()
         .select('-password')
@@ -10,6 +12,8 @@ exports.getUsers = async (req, res, next) => {
 }
 
 exports.removeUser = async (req, res, next) => {
+    if (req.user.role != UserRole.ADMIN) throw new HttpError('NOT_ADMIN')
+
     const { login } = req.query
 
     if (!login) throw new HttpError('NO_QUERY')
