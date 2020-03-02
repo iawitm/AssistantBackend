@@ -16,9 +16,7 @@ exports.getLessonInfo = (rawLesson, parity) => {
                 type: indexOrFirst(rawLesson.type.split(' '), i),
                 professor: indexOrFirst(professors, i),
                 room: indexOrFirst(rawLesson.room.split(' '), i),
-                weeks: weeksMatches[i]
-                    .replace(/\s?н\.?/g, '')
-                    .replace(/ /g, '')
+                weeks: clearWeek(weeksMatches[i])
             })
         }
         info.push(getEmptyLessonInfo(parity))
@@ -64,6 +62,12 @@ const getNormalLessonInfo = (rawLesson, parity) => {
     info.name = clear(info.name)
     infos.push(info)
     return infos
+}
+
+const clearWeek = (week) => {
+    return week
+        .replace(/\s?н\.?/g, '')
+        .replace(/ /g, '')
 }
 
 const clear = (name) => {

@@ -14,8 +14,18 @@ function columnsToSchedule(columns, institute, cource) {
         let beginIndex = column.indexOf('Предмет')
         if (beginIndex > -1 && column[beginIndex - 1] != '') {
 
+            let groupName = core
+                .convertGroupName(column[beginIndex - 1])
+                .match(/([a-z]`?)+(-[0-9]{2}){2}/g)[0]
+
+            let sameGroupCount = schedule.filter(item => 
+                item.meta.group.match(groupName)
+            ).length
+
+            if (sameGroupCount) groupName = `${groupName}(${sameGroupCount / 36})`
+
             let meta = {
-                group: core.convertGroupName(column[beginIndex - 1]),
+                group: groupName,
                 cource: cource,
                 institute: institute
             }
