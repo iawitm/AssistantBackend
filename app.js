@@ -1,5 +1,6 @@
 const os = require("os")
-const express = require('express') //import library
+const express = require('express')
+const cors = require('cors')
 const mongoose = require('mongoose')
 const bodyParser = require('body-parser')
 const formData = require("express-form-data")
@@ -16,8 +17,9 @@ const formDataOptions = {
 	autoClean: true
 }
 
+app.use(cors())
 app.use(bodyParser.json())
-app.use(formData.parse(formDataOptions));
+app.use(formData.parse(formDataOptions))
 app.use('/', routes)
 app.use(errorMiddleware)
 
