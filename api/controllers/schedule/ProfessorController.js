@@ -39,6 +39,9 @@ exports.getByProfessor = async (req, res, next) => {
 				interval: { $first: '$_id.interval' },
 				info: { $push: '$_id.info' },
 			}
+		},
+		{
+			$limit: 400
 		}
 	])
 
