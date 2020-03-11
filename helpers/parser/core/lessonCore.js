@@ -1,14 +1,21 @@
+const weeksRegex = /(?!=\()[0-9,\s]+н?\.? (?![\/А-Яа-я\s\.]*[\)])/g
+const exceptedWeeksRegex = /(?!=\()кр(оме)?.? [0-9,\s]+н?\.? (?![\/А-Яа-я\s\.]*[\)])/g
+
 exports.getLessonInfo = (rawLesson, parity) => {
-    if (rawLesson.name.match(/(?![0-9] п\/г)кр.? [0-9,\s]+н?\.? /g))
+
+    rawLesson.name = handleRanges(rawLesson.name, !parity)
+
+    if (rawLesson.name.match(exceptedWeeksRegex))
         return getExceptedLessonsInfo(rawLesson, parity)
-    let weeksMatches = rawLesson.name.match(/(?![0-9] п\/г)[0-9,\s]+н?\.? /g)
+    let weeksMatches = rawLesson.name.match(weeksRegex)
 
     if (weeksMatches) {
         let info = []
-        let names = rawLesson.name.split(/(?![0-9] п\/г)[0-9,\s]+н?\.? /g).filter(Boolean)
+
+        let names = rawLesson.name.split(weeksRegex).filter(Boolean)
+        let professors = rawLesson.professor.match(/[а-яё]+ ([А-Я].)+/ig)
+
         removeEmptyFromArray(names)
-        
-        let professors = rawLesson.professor.match(/[а-я]+ ([А-Я].)+/ig)
 
         for (let i = 0; i < weeksMatches.length; i++) {
             info.push({
@@ -28,9 +35,12 @@ exports.getLessonInfo = (rawLesson, parity) => {
 
 const getExceptedLessonsInfo = (rawLesson, parity) => {
     let infos = []
-    let matches = rawLesson.name.match(/(?![0-9] п\/г)кр.? [0-9,\s]+н?\.? /g)
-    let names = rawLesson.name.replace(/кр.? /, '').split(/(?![0-9] п\/г)[0-9,\s]+н?\.? /g).filter(Boolean)
-    let professors = rawLesson.professor.match(/[а-я]+ ([А-Я].)+/ig)
+    let matches = rawLesson.name.match(exceptedWeeksRegex)
+    let names = rawLesson.name
+        .replace(/кр(оме)?.? /, '')
+        .split(weeksRegex)
+        .filter(Boolean)
+    let professors = rawLesson.professor.match(/[а-яё]+ ([А-Я].)+/ig)
     
     for (let i = 0; i < matches.length; i++) {
         infos.push({
@@ -38,15 +48,16 @@ const getExceptedLessonsInfo = (rawLesson, parity) => {
             type: indexOrFirst(rawLesson.type.split(' '), i),
             professor: indexOrFirst(professors, i),
             room: indexOrFirst(rawLesson.room.split(' '), i),
-            weeks: (matches[i].match(/(?![0-9] п\/г)кр.? [0-9,\s]+н?\.? /g)) ?
-                ((parity == 0) ? 'odd' : 'even') : matches[i].replace(/ н\./, '')
+            weeks: (matches[i].match(exceptedWeeksRegex)) ?
+                ((parity == 0) ? 'odd' : 'even') : matches[i]
+                    .replace(/ н\./, '')
         })
     }
 
     if (infos.length == 1) {
         let empty = getEmptyLessonInfo(parity)
-        empty.weeks = rawLesson.name.match(/(?![0-9] п\/г)кр.? [0-9,\s]+н?\.? /g)[0]
-            .replace(/кр.? /, '')
+        empty.weeks = rawLesson.name.match(exceptedWeeksRegex)[0]
+            .replace(/кр(оме)?.? /, '')
             .replace(/ н\.?/, '')
             .replace(/ /g, '')
         infos.push(empty)
@@ -103,4 +114,25 @@ const getEmptyLessonInfo = (parity) => {
         room: '',
         weeks: ((parity == 0) ? 'odd' : 'even')
     }
+}
+
+const range = (str, isOdd) => {
+    const numbers = str.split('-')
+    const start = parseInt(numbers[0])
+    const end = parseInt(numbers[1])
+
+    const arr = Array.from({ length: 1 + end - start });
+
+    return arr
+        .map((_,i) => start + i)
+        .filter(n => isOdd ? n % 2 : !(n % 2)).join(',')
+}
+
+const handleRanges = (str, isOdd) => { 
+    const regex = /(?!=\()[\d]+-[\d]+(?![\/-А-Яа-я\s\.]*[\)])/
+    while (m = str.match(regex)) {
+        mm = m[0];
+        str = str.replace(regex, range(mm, isOdd)) 
+    }
+    return str;
 }
