@@ -1,3 +1,5 @@
+const { handleRanges, exceptedRange } = require('./range')
+
 const weeksRegex = /(?!=\()[0-9,\s]+н?\.? (?![\/А-Яа-я\s\.]*[\)])/g
 const exceptedWeeksRegex = /(?!=\()кр(оме)?.? [0-9,\s]+н?\.? (?![\/А-Яа-я\s\.]*[\)])/g
 
@@ -49,20 +51,16 @@ const getExceptedLessonsInfo = (rawLesson, parity) => {
             professor: indexOrFirst(professors, i),
             room: indexOrFirst(rawLesson.room.split(' '), i),
             weeks: (matches[i].match(exceptedWeeksRegex)) ?
-                ((parity == 0) ? 'odd' : 'even') : matches[i]
-                    .replace(/ н\./, '')
+                exceptedRange(clearWeek(matches[i]), !parity) : 
+                matches[i].replace(/ н\./, '')
         })
     }
 
     if (infos.length == 1) {
         let empty = getEmptyLessonInfo(parity)
-        empty.weeks = rawLesson.name.match(exceptedWeeksRegex)[0]
-            .replace(/кр(оме)?.? /, '')
-            .replace(/ н\.?/, '')
-            .replace(/ /g, '')
         infos.push(empty)
     }
-    
+
     return infos
 }
 
@@ -78,6 +76,7 @@ const getNormalLessonInfo = (rawLesson, parity) => {
 const clearWeek = (week) => {
     return week
         .replace(/\s?н\.?/g, '')
+        .replace(/кр(оме)?.? /, '')
         .replace(/ /g, '')
 }
 
@@ -114,25 +113,4 @@ const getEmptyLessonInfo = (parity) => {
         room: '',
         weeks: ((parity == 0) ? 'odd' : 'even')
     }
-}
-
-const range = (str, isOdd) => {
-    const numbers = str.split('-')
-    const start = parseInt(numbers[0])
-    const end = parseInt(numbers[1])
-
-    const arr = Array.from({ length: 1 + end - start });
-
-    return arr
-        .map((_,i) => start + i)
-        .filter(n => isOdd ? n % 2 : !(n % 2)).join(',')
-}
-
-const handleRanges = (str, isOdd) => { 
-    const regex = /(?!=\()[\d]+-[\d]+(?![\/-А-Яа-я\s\.]*[\)])/
-    while (m = str.match(regex)) {
-        mm = m[0];
-        str = str.replace(regex, range(mm, isOdd)) 
-    }
-    return str;
 }
