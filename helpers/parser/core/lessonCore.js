@@ -8,21 +8,23 @@ exports.getLessonInfo = (rawLesson, parity) => {
 
     rawLesson.name = handleRanges(rawLesson.name, !parity)
 
-    if (rawLesson.name.match(exceptedWeeksRegex))
+    if (rawLesson.name.match(exceptedWeeksRegex)){
         return getExceptedLessonsInfo(rawLesson, parity)
+    }
+
     let weeksMatches = rawLesson.name.match(weeksRegex)
 
     if (weeksMatches) {
         let info = []
 
+        weeksMatches = removeEmptyFromArray(weeksMatches)
         let names = rawLesson.name.split(weeksRegex).filter(Boolean)
         let professors = rawLesson.professor.match(professorRegex)
-
-        removeEmptyFromArray(names)
+        names = removeEmptyFromArray(names)
 
         for (let i = 0; i < weeksMatches.length; i++) {
             info.push({
-                name: names[i],
+                name: clear(names[i]),
                 type: indexOrFirst(rawLesson.type.split(' '), i),
                 professor: indexOrFirst(professors, i),
                 room: indexOrFirst(rawLesson.room.split(' '), i),
@@ -47,7 +49,7 @@ const getExceptedLessonsInfo = (rawLesson, parity) => {
     
     for (let i = 0; i < matches.length; i++) {
         infos.push({
-            name: removeFirstIfSpace(names[i]),
+            name: clear(names[i]),
             type: indexOrFirst(rawLesson.type.split(' '), i),
             professor: indexOrFirst(professors, i),
             room: indexOrFirst(rawLesson.room.split(' '), i),
@@ -89,6 +91,7 @@ const clear = (name) => {
         .replace('День', '')
         .replace('самостоятельных', '')
         .replace('занятий', '')
+        .replace(/^\s*\/*|\/+$/, '')
 }
 
 const indexOrFirst = (arr, index) => {
@@ -96,14 +99,10 @@ const indexOrFirst = (arr, index) => {
     return (arr[index]) ? arr[index] : arr[0]
 }
 
-const removeFirstIfSpace = (text) => {
-    return (text[0] == ' ') ? text.substr(1) : text
-}
-
 const removeEmptyFromArray = (array) => {
-    for (let i = 0; i < array.length; i++) {
-        if (!array[i].replace(/\s/g, '').length) array.splice(i, 1)
-    }
+    return array.filter(week => {
+        return week.replace(/\s+/, '').length > 0
+    })
 }
 
 const getEmptyLessonInfo = (parity) => {
