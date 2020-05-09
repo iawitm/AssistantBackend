@@ -3,6 +3,7 @@ const { handleRanges, exceptedRange } = require('./range')
 const weeksRegex = /(?!=\()[0-9,\s]+н?\.? (?![\/А-Яа-я\s\.]*[\)])/g
 const exceptedWeeksRegex = /(?!=\()кр(оме)?.? [0-9,\s]+н?\.? (?![\/А-Яа-я\s\.]*[\)])/g
 const professorRegex = /[а-яё-]+ ([А-Я].)+/ig
+const subGroupsRegex = /[0-9]+ п\/гр/g
 
 exports.getLessonInfo = (rawLesson, parity) => {
 
@@ -12,12 +13,14 @@ exports.getLessonInfo = (rawLesson, parity) => {
         return getExceptedLessonsInfo(rawLesson, parity)
     }
 
-    let weeksMatches = rawLesson.name.match(weeksRegex)
+    let weeksMatches = rawLesson.name
+        .replace(subGroupsRegex, '')
+        .match(weeksRegex)
 
     if (weeksMatches) {
         let info = []
 
-        weeksMatches = removeEmptyFromArray(weeksMatches)
+        weeksMatches = filterWeeks(weeksMatches)
         let names = rawLesson.name.split(weeksRegex).filter(Boolean)
         let professors = rawLesson.professor.match(professorRegex)
         names = removeEmptyFromArray(names)
@@ -100,8 +103,14 @@ const indexOrFirst = (arr, index) => {
 }
 
 const removeEmptyFromArray = (array) => {
-    return array.filter(week => {
-        return week.replace(/\s+/, '').length > 0
+    return array.filter(element => {
+        return element.replace(/\s+/, '').length > 0
+    })
+}
+
+const filterWeeks = (weeks) => {
+    return weeks.filter(week => {
+        return week.replace(/\s+?[н?\s+?]+/, '').length > 0
     })
 }
 

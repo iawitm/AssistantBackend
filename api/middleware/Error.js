@@ -10,7 +10,8 @@ const ErrorTypes = {
 	NO_SUCH_USER: 404,
 	INCORRECT_PASSWORD: 401,
 	BAD_AUTH_CREDENTIALS: 401,
-	NOT_ADMIN: 403
+	NOT_ADMIN: 403,
+	NO_SUCH_GROUP: 404
 }
 
 class HttpError extends Error {
