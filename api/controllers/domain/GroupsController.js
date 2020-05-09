@@ -3,7 +3,7 @@ const HttpError = require('../../middleware/Error').HttpError
 const Lesson = require('../../model/LessonModel')
 const translit = require('../../../helpers/translit')
 
-const RUQueryRegex = /[А-Я]/ig
+const RUQueryRegex = /[А-Я%]/ig
 
 exports.getGroups = async (req, res, next) => {
     let groups = await Lesson
