@@ -1,5 +1,6 @@
 const HttpError = require('../../middleware/Error').HttpError
 const bachelorParser = require('../../../helpers/parser/bachelor')
+const magistracyParser = require('../../../helpers/parser/magistracy')
 const InstituteNumbers = require('../../../helpers/institute').InstituteNumbers
 
 const Lesson = require('../../model/LessonModel')
@@ -12,14 +13,11 @@ exports.uploadSchedule = async (req, res, next) => {
 
 	let meta = JSON.parse(req.body.meta)
 
-	if (InstituteNumbers[meta.institute] === undefined) throw new HttpError('WRONG_INSTITUTE')
+	if (InstituteNumbers[meta.institute] === undefined) {
+		throw new HttpError('WRONG_INSTITUTE')
+	}
 
-	// TODO: add check for type of schedule
-	let schedule = bachelorParser.getSchedule(
-		req.files.schedule.path,
-		InstituteNumbers[meta.institute],
-		meta.cource
-	)
+	const schedule = getParsedSchedule(req.files.schedule.path, meta)
 
 	await Lesson.collection.deleteMany({
 		'meta.institute': InstituteNumbers[meta.institute],
@@ -45,4 +43,20 @@ exports.getSchedule = async (req, res, next) => {
 		semester: semester,
 		schedule: schedule
 	})
+}
+
+getParsedSchedule = (filePath, meta) => {
+	if (meta.cource < 6) {
+		return bachelorParser.getSchedule(
+			filePath,
+			InstituteNumbers[meta.institute],
+			meta.cource
+		)
+	} else {
+		return magistracyParser.getSchedule(
+			filePath,
+			InstituteNumbers[meta.institute],
+			meta.cource
+		)
+	}
 }
