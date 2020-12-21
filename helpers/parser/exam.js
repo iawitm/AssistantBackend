@@ -1,4 +1,5 @@
 const core = require('./core/parserCore')
+const groupCore = require('./core/groupCore')
 
 exports.getExams = (fileName, institute, cource) => {
     let columns = core.xlsxToColumns(fileName)
@@ -12,9 +13,16 @@ const columnsToExams = (columns, institute, cource) => {
     for (let i = 0; i < columns.length; i++) {
         let column = columns[i]
         let beginIndex = column.indexOf('время')
+
         if (beginIndex > -1 && (i - 1) > -1) {
+
+            let rawGroupName = columns[i - 1][beginIndex]
+            if (!rawGroupName) { continue }
+
+            let groupName = groupCore.parseGroupName(rawGroupName, exams)
+
             let meta = {
-                group: core.convertGroupName(columns[i - 1][beginIndex]),
+                group: groupName,
                 institute: institute,
                 cource: cource
             }

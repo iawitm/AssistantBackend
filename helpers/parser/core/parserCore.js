@@ -38,7 +38,7 @@ const sheetToColumns = (sheet) => {
     }
 
     return Object.values(object)
-};
+}
 
 exports.convertGroupName = (name) => {
     name = name.replace(/ /g,'')
