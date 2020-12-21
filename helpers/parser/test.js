@@ -27,6 +27,8 @@ function columnsToTests(columns, startDate, institute, cource) {
             ))
         }
     }
+
+    console.log(tests)
     return tests
 }
  
