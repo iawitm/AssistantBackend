@@ -1,25 +1,33 @@
+const { handleRanges, exceptedRange } = require('./range')
+
 const weeksRegex = /(?!=\()[0-9,\s]+н?\.? (?![\/А-Яа-я\s\.]*[\)])/g
 const exceptedWeeksRegex = /(?!=\()кр(оме)?.? [0-9,\s]+н?\.? (?![\/А-Яа-я\s\.]*[\)])/g
+const professorRegex = /[а-яё-]+ ([А-Я].)+/ig
+const subGroupsRegex = /[0-9]+ п\/гр/g
 
 exports.getLessonInfo = (rawLesson, parity) => {
 
     rawLesson.name = handleRanges(rawLesson.name, !parity)
 
-    if (rawLesson.name.match(exceptedWeeksRegex))
+    if (rawLesson.name.match(exceptedWeeksRegex)){
         return getExceptedLessonsInfo(rawLesson, parity)
-    let weeksMatches = rawLesson.name.match(weeksRegex)
+    }
+
+    let weeksMatches = rawLesson.name
+        .replace(subGroupsRegex, '')
+        .match(weeksRegex)
 
     if (weeksMatches) {
         let info = []
 
+        weeksMatches = filterWeeks(weeksMatches)
         let names = rawLesson.name.split(weeksRegex).filter(Boolean)
-        let professors = rawLesson.professor.match(/[а-яё]+ ([А-Я].)+/ig)
-
-        removeEmptyFromArray(names)
+        let professors = rawLesson.professor.match(professorRegex)
+        names = removeEmptyFromArray(names)
 
         for (let i = 0; i < weeksMatches.length; i++) {
             info.push({
-                name: names[i],
+                name: clear(names[i]),
                 type: indexOrFirst(rawLesson.type.split(' '), i),
                 professor: indexOrFirst(professors, i),
                 room: indexOrFirst(rawLesson.room.split(' '), i),
@@ -40,29 +48,25 @@ const getExceptedLessonsInfo = (rawLesson, parity) => {
         .replace(/кр(оме)?.? /, '')
         .split(weeksRegex)
         .filter(Boolean)
-    let professors = rawLesson.professor.match(/[а-яё]+ ([А-Я].)+/ig)
+    let professors = rawLesson.professor.match(professorRegex)
     
     for (let i = 0; i < matches.length; i++) {
         infos.push({
-            name: removeFirstIfSpace(names[i]),
+            name: clear(names[i]),
             type: indexOrFirst(rawLesson.type.split(' '), i),
             professor: indexOrFirst(professors, i),
             room: indexOrFirst(rawLesson.room.split(' '), i),
             weeks: (matches[i].match(exceptedWeeksRegex)) ?
-                ((parity == 0) ? 'odd' : 'even') : matches[i]
-                    .replace(/ н\./, '')
+                exceptedRange(clearWeek(matches[i]), !parity) : 
+                matches[i].replace(/ н\./, '')
         })
     }
 
     if (infos.length == 1) {
         let empty = getEmptyLessonInfo(parity)
-        empty.weeks = rawLesson.name.match(exceptedWeeksRegex)[0]
-            .replace(/кр(оме)?.? /, '')
-            .replace(/ н\.?/, '')
-            .replace(/ /g, '')
         infos.push(empty)
     }
-    
+
     return infos
 }
 
@@ -78,6 +82,7 @@ const getNormalLessonInfo = (rawLesson, parity) => {
 const clearWeek = (week) => {
     return week
         .replace(/\s?н\.?/g, '')
+        .replace(/кр(оме)?.? /, '')
         .replace(/ /g, '')
 }
 
@@ -89,6 +94,7 @@ const clear = (name) => {
         .replace('День', '')
         .replace('самостоятельных', '')
         .replace('занятий', '')
+        .replace(/^\s*\/*|\/+$/, '')
 }
 
 const indexOrFirst = (arr, index) => {
@@ -96,14 +102,16 @@ const indexOrFirst = (arr, index) => {
     return (arr[index]) ? arr[index] : arr[0]
 }
 
-const removeFirstIfSpace = (text) => {
-    return (text[0] == ' ') ? text.substr(1) : text
+const removeEmptyFromArray = (array) => {
+    return array.filter(element => {
+        return element.replace(/\s+/, '').length > 0
+    })
 }
 
-const removeEmptyFromArray = (array) => {
-    for (let i = 0; i < array.length; i++) {
-        if (!array[i].replace(/\s/g, '').length) array.splice(i, 1)
-    }
+const filterWeeks = (weeks) => {
+    return weeks.filter(week => {
+        return week.replace(/\s+?[н?\s+?]+/, '').length > 0
+    })
 }
 
 const getEmptyLessonInfo = (parity) => {
@@ -114,25 +122,4 @@ const getEmptyLessonInfo = (parity) => {
         room: '',
         weeks: ((parity == 0) ? 'odd' : 'even')
     }
-}
-
-const range = (str, isOdd) => {
-    const numbers = str.split('-')
-    const start = parseInt(numbers[0])
-    const end = parseInt(numbers[1])
-
-    const arr = Array.from({ length: 1 + end - start });
-
-    return arr
-        .map((_,i) => start + i)
-        .filter(n => isOdd ? n % 2 : !(n % 2)).join(',')
-}
-
-const handleRanges = (str, isOdd) => { 
-    const regex = /(?!=\()[\d]+-[\d]+(?![\/-А-Яа-я\s\.]*[\)])/
-    while (m = str.match(regex)) {
-        mm = m[0];
-        str = str.replace(regex, range(mm, isOdd)) 
-    }
-    return str;
 }
