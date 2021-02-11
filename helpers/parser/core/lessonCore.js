@@ -9,6 +9,7 @@ exports.getLessonInfo = (rawLesson, parity) => {
 
     rawLesson.name = handleRanges(rawLesson.name, !parity)
 
+    /* Блок с обработкой пары по исключенным неделям (пример - 'кр 3, 5, 7 н') */
     if (rawLesson.name.match(exceptedWeeksRegex)){
         return getExceptedLessonsInfo(rawLesson, parity)
     }
@@ -17,42 +18,70 @@ exports.getLessonInfo = (rawLesson, parity) => {
         .replace(subGroupsRegex, '')
         .match(weeksRegex)
 
+    /* Блок с обработкой пары по неделям */
     if (weeksMatches) {
-        let info = []
-
-        weeksMatches = filterWeeks(weeksMatches)
-        let names = rawLesson.name.split(weeksRegex).filter(Boolean)
-        let professors = rawLesson.professor.match(professorRegex)
-        names = removeEmptyFromArray(names)
-
-        for (let i = 0; i < weeksMatches.length; i++) {
-            info.push({
-                name: clear(names[i]),
-                type: indexOrFirst(rawLesson.type.split(' '), i),
-                professor: indexOrFirst(professors, i),
-                room: indexOrFirst(rawLesson.room.split(' '), i),
-                weeks: clearWeek(weeksMatches[i])
-            })
-        }
-        info.push(getEmptyLessonInfo(parity))
-        return info
-    } else {
-        return getNormalLessonInfo(rawLesson, parity)
+        return getLessonInfoByWeekMatches(rawLesson, weeksMatches, parity)
     }
+
+    /* Просто информация о паре */
+    return getNormalLessonInfo(rawLesson, parity)
+}
+
+/**
+ * Метод, возвращающий информацию о паре, которая проходит по определенным неделям
+ * @param rawLesson - "сырой" объект пары
+ * @param weeksMatches - RegExp match недель
+ * @param parity - Четность пары
+ */
+function getLessonInfoByWeekMatches(rawLesson, weeksMatches, parity) {
+    let info = []
+
+    let names = removeEmptyFromArray(rawLesson.name.split(weeksRegex).filter(Boolean))
+    let professors = rawLesson.professor.match(professorRegex)
+    let weeks = filterWeeks(weeksMatches)
+
+    for (let i = 0; i < weeksMatches.length; i++) {
+        /* Объект новой пары */
+        let lessonToPush = {
+            name: clearName(names[i]),
+            weeks: clearWeek(weeks[i]),
+            professor: indexOrFirst(professors, i),
+            type: indexOrFirst(rawLesson.type.split(' '), i),
+            room: indexOrFirst(rawLesson.room.split(' '), i)
+        }
+
+        /* Проверка, есть ли в info пары с таким же набором недель */
+        let sameWeekLesson = info.find(lesson => {
+            return lesson.weeks == lessonToPush.weeks
+        })
+        if (sameWeekLesson) {
+            let index = info.indexOf(sameWeekLesson)
+
+            info[index].name += `\n${lessonToPush.name}`
+            info[index].professor += `/ ${lessonToPush.professor}`
+            info[index].room += `/ ${lessonToPush.room}`
+            info[index].type += `/ ${lessonToPush.type}`
+        } else {
+            info.push(lessonToPush)
+        }
+    }
+    /* Пустая пара на остальные недели с той же четностью */
+    info.push(getEmptyLessonInfo(parity))
+    return info
 }
 
 const getExceptedLessonsInfo = (rawLesson, parity) => {
     let infos = []
     let matches = rawLesson.name.match(exceptedWeeksRegex)
+    let professors = rawLesson.professor.match(professorRegex)
     let names = rawLesson.name
         .replace(/кр(оме)?.? /, '')
         .split(weeksRegex)
         .filter(Boolean)
-    let professors = rawLesson.professor.match(professorRegex)
-    
+
     for (let i = 0; i < matches.length; i++) {
         infos.push({
-            name: clear(names[i]),
+            name: clearName(names[i]),
             type: indexOrFirst(rawLesson.type.split(' '), i),
             professor: indexOrFirst(professors, i),
             room: indexOrFirst(rawLesson.room.split(' '), i),
@@ -74,7 +103,7 @@ const getNormalLessonInfo = (rawLesson, parity) => {
     let infos = []
     let info = rawLesson
     info.weeks = ((parity == 0) ? 'odd' : 'even')
-    info.name = clear(info.name)
+    info.name = clearName(info.name)
     infos.push(info)
     return infos
 }
@@ -86,7 +115,7 @@ const clearWeek = (week) => {
         .replace(/ /g, '')
 }
 
-const clear = (name) => {
+const clearName = (name) => {
     return name
         .replace('……………', '')
         .replace('…………..', '')
