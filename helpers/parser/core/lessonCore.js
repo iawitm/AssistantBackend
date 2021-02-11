@@ -14,12 +14,14 @@ exports.getLessonInfo = (rawLesson, parity) => {
         return getExceptedLessonsInfo(rawLesson, parity)
     }
 
-    let weeksMatches = rawLesson.name
-        .replace(subGroupsRegex, '')
-        .match(weeksRegex)
+    let weeksMatches = filterWeeks(
+        rawLesson.name
+            .replace(subGroupsRegex, '')
+            .match(weeksRegex)
+    )
 
     /* Блок с обработкой пары по неделям */
-    if (weeksMatches) {
+    if (weeksMatches && weeksMatches.length > 0) {
         return getLessonInfoByWeekMatches(rawLesson, weeksMatches, parity)
     }
 
@@ -30,24 +32,23 @@ exports.getLessonInfo = (rawLesson, parity) => {
 /**
  * Метод, возвращающий информацию о паре, которая проходит по определенным неделям
  * @param rawLesson - "сырой" объект пары
- * @param weeksMatches - RegExp match недель
+ * @param weeks - Отфильтрованные недели
  * @param parity - Четность пары
  */
-function getLessonInfoByWeekMatches(rawLesson, weeksMatches, parity) {
+function getLessonInfoByWeekMatches(rawLesson, weeks, parity) {
     let info = []
 
     let names = removeEmptyFromArray(rawLesson.name.split(weeksRegex).filter(Boolean))
     let professors = rawLesson.professor.match(professorRegex)
-    let weeks = filterWeeks(weeksMatches)
 
-    for (let i = 0; i < weeksMatches.length; i++) {
+    for (let i = 0; i < weeks.length; i++) {
         /* Объект новой пары */
         let lessonToPush = {
             name: clearName(names[i]),
             weeks: clearWeek(weeks[i]),
             professor: indexOrFirst(professors, i),
             type: indexOrFirst(rawLesson.type.split(' '), i),
-            room: indexOrFirst(rawLesson.room.split(' '), i)
+            room: clearRoom(indexOrFirst(rawLesson.room.split(' '), i))
         }
 
         /* Проверка, есть ли в info пары с таким же набором недель */
@@ -126,6 +127,10 @@ const clearName = (name) => {
         .replace(/^\s*\/*|\/+$/, '')
 }
 
+const clearRoom = (room) => {
+    return room.replace(/\s*\/*|\/+/, ' ')
+}
+
 const indexOrFirst = (arr, index) => {
     if (!arr) return ''
     return (arr[index]) ? arr[index] : arr[0]
@@ -137,7 +142,14 @@ const removeEmptyFromArray = (array) => {
     })
 }
 
+/**
+ * Метод, убирающий пустые значения недель, чтобы исключить
+ * совпадения по trailing spaces
+ * @param weeks Массив заматченных недель из названия пары
+ */
 const filterWeeks = (weeks) => {
+    if (!weeks) { return weeks }
+
     return weeks.filter(week => {
         return week.replace(/\s+?[н?\s+?]+/, '').length > 0
     })
