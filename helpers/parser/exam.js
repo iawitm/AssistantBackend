@@ -72,12 +72,25 @@ const getDate = (columns, recordIndex, timeString) => {
     let month = getMonth(columns[0][recordIndex])
     let day = getDay(columns[1][recordIndex].replace(/[а-я]/g, ''))
     let time = timeString.split('-')
+
+    const nowIsDecember = isCurrentMonthDecember()
+
+    /* Прибавляем год, если экзамен будет в январе следующего года */
+    if (nowIsDecember && month == '01') { year++ }
+
+    /* Убираем лишний год, если экзамен был в декабре прошлого года */
+    if (!nowIsDecember && month == '12') { --year }
+
     let date = new Date(`${year}-${month}-${day}`)
     if (time.length > 1) {
         date.setHours(time[0], time[1])
         date.setHours(date.getHours() + 3)
     }
     return date
+}
+
+const isCurrentMonthDecember = () => {
+    return new Date().getMonth() == 11
 }
 
 const getMonth = (month) => {
