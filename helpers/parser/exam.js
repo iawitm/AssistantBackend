@@ -1,13 +1,18 @@
 const core = require('./core/parserCore')
 const groupCore = require('./core/groupCore')
 
-exports.getExams = (fileName, institute, cource) => {
-    let columns = core.xlsxToColumns(fileName)
-    formatMonthColumn(columns)
-    return columnsToExams(columns, institute, cource)
+exports.ParseTypes = {
+    EXAMS: 0,
+    TESTS: 1
 }
 
-const columnsToExams = (columns, institute, cource) => {
+exports.getExams = (fileName, institute, cource, parseType) => {
+    let columns = core.xlsxToColumns(fileName)
+    formatMonthColumn(columns)
+    return columnsToExams(columns, institute, cource, parseType)
+}
+
+const columnsToExams = (columns, institute, cource, parseType) => {
     let exams = []
 
     for (let i = 0; i < columns.length; i++) {
@@ -26,7 +31,7 @@ const columnsToExams = (columns, institute, cource) => {
                 institute: institute,
                 cource: cource
             }
-            exams.push.apply(exams, columnToExams(columns, i - 1, beginIndex, meta))
+            exams.push.apply(exams, columnToExams(columns, i - 1, beginIndex, meta, parseType))
         }
     }
     return exams
@@ -46,13 +51,18 @@ const formatMonthColumn = (columns) => {
     }
 }
 
-const columnToExams = (columns, colIndex, beginIndex, meta) => {
+const columnToExams = (columns, colIndex, beginIndex, meta, parseType) => {
     let exams = []
 
     for (let i = beginIndex + 1; i < columns[colIndex].length; i++) {
-        let colData = columns[colIndex][i]
+        /* Получаем заголовок из таблицы */
+        let colData = getParsedType(columns[colIndex][i])
 
-        if (colData == 'Консультация' || colData == "Экзамен") {
+        /* Если это начало информации о зачете или экзамене, добавляем информацию в массив */
+        if (
+            parseType == this.ParseTypes.EXAMS && matchesExamsFormat(colData) ||
+            parseType == this.ParseTypes.TESTS && matchesTestsFormat(colData)
+        ) {
             let exam = {
                 type: colData,
                 date: getDate(columns, i, columns[colIndex + 1][i]),
@@ -64,6 +74,7 @@ const columnToExams = (columns, colIndex, beginIndex, meta) => {
             exams.push(exam)
         }
     }
+    /* Возвращаем полученную информацию по группе */
     return exams
 }
 
@@ -71,7 +82,8 @@ const getDate = (columns, recordIndex, timeString) => {
     let year = new Date().getFullYear()
     let month = getMonth(columns[0][recordIndex])
     let day = getDay(columns[1][recordIndex].replace(/[а-я]/g, ''))
-    let time = timeString.split('-')
+    /* Получаем первое время, которое указано в таблице */
+    let time = timeString.substring(0, 4).split('-')
 
     const nowIsDecember = isCurrentMonthDecember()
 
@@ -95,9 +107,12 @@ const isCurrentMonthDecember = () => {
 
 const getMonth = (month) => {
     switch(month) {
+        case 'декабрь': return '12'
         case 'январь': return '01'
         case 'февраль': return '02'
-        case 'декабрь': return '12'
+        case 'март': return '03'
+        case 'апрель': return '04'
+        case 'май': return '04'
         case 'июнь': return '06'
         case 'июль': return '07'
         default: return '01'
@@ -107,4 +122,18 @@ const getMonth = (month) => {
 const getDay = (day) => {
     if (day.length == 1) return `0${day}`
     else return day
+}
+
+const matchesTestsFormat = (type) => {
+    return type == 'Дифференцированный зачет' || type == 'Зачет'
+}
+
+const matchesExamsFormat = (type) => {
+    return type == 'Консультация' || type == 'Экзамен'
+}
+
+const getParsedType = (rawType) => {
+    if (rawType.match(/Диф. Зачет/gi)) {
+        return 'Дифференцированный зачет'
+    } else return rawType
 }

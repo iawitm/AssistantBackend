@@ -16,7 +16,8 @@ exports.uploadExams = async (req, res, next) => {
     let exams = examParser.getExams(
         req.files.exams.path, 
         InstituteNumbers[meta.institute], 
-        meta.cource
+        meta.cource,
+        examParser.ParseTypes.EXAMS
     )
 
     await Exam.collection.deleteMany({ 

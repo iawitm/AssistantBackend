@@ -1,4 +1,5 @@
 const testParser = require('../../../helpers/parser/test')
+const examParser = require('../../../helpers/parser/exam')
 const HttpError = require('../../middleware/Error').HttpError
 
 const { Test } = require('../../model/ExamModel')
@@ -12,14 +13,9 @@ exports.uploadTests = async (req, res, next) => {
     let meta = JSON.parse(req.body.meta)
 
     if (InstituteNumbers[meta.institute] === undefined) throw new HttpError('WRONG_INSTITUTE')
-    if (!new Date(meta.date)) throw new HttpError('INCORRECT_DATE')
+    if (!new Date(meta.date) && !meta.useNewFormat) throw new HttpError('INCORRECT_DATE')
 
-    let tests = testParser.getTests(
-        req.files.tests.path, 
-        InstituteNumbers[meta.institute], 
-        meta.cource,
-        new Date(meta.date)
-    )
+    let tests = getParsedTests(req.files.tests.path, meta)
 
     await Test.collection.deleteMany({ 
         'meta.institute': InstituteNumbers[meta.institute], 
@@ -37,4 +33,22 @@ exports.getTests = async (req, res, next) => {
     }).select('-meta -_id')
 
     res.status(200).json(tests)
+}
+
+getParsedTests = (filePath, meta) => {
+    if (meta.useNewFormat) {
+        return examParser.getExams(
+            filePath, 
+            InstituteNumbers[meta.institute], 
+            meta.cource,
+            examParser.ParseTypes.TESTS,
+        )
+    } else {
+        return testParser.getTests(
+            filePath, 
+            InstituteNumbers[meta.institute], 
+            meta.cource,
+            new Date(meta.date),
+        )
+    }
 }
